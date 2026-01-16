@@ -20,7 +20,7 @@ class Train:
 
 
 class Train:
-    def __init__(self, id: int, weight: float:.1f, route: tuple):
+    def __init__(self, id: int, weight: float, route: tuple):
         self.id     = id
         self.weight = weight
         self.route  = route          # (dep, arr)
