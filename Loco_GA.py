@@ -20,6 +20,39 @@ class Train:
 
 import random
 
+def generate_synthetic_data(
+        num_locomotives=10,
+        num_trains=20,
+        depots=("A", "B", "C")):
+    """
+    Генерация синтетических данных
+    для экспериментальных расчетов (глава 4)
+    """
+
+    locomotives = {}
+    for i in range(num_locomotives):
+        locomotives[i] = Locomotive(
+            id=i,
+            loco_type="2ЭС6",
+            power=random.uniform(4000, 7000),
+            remaining_resource=random.uniform(20, 50),
+            home_depot=random.choice(depots)
+        )
+
+    trains = {}
+    for j in range(num_trains):
+        dep = random.choice(depots)
+        arr = random.choice([d for d in depots if d != dep])
+        trains[j] = Train(
+            id=j,
+            weight=random.uniform(3000, 6000),
+            route=(dep, arr),
+            departure_time=random.uniform(0, 24),
+            duration=random.uniform(2, 6)
+        )
+            
+    return locomotives, trains
+
 def preprocess_external_data(train_table, loco_table):
     """
     Предобработка данных,
