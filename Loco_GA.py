@@ -292,7 +292,7 @@ def print_assignment_table(solution, locomotives, trains):
 
 
 
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 def plot_assignment(solution, trains):
     fig, ax = plt.subplots()
