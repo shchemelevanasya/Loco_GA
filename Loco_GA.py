@@ -258,11 +258,11 @@ def run_experiment(ga, baseline_solution, heuristic_solution):
 import pandas as pd
 
 # def build_assignment_table(solution, locomotives, trains):
-    rows = []
+    #rows = []
     #for loco_id, train_ids in solution.assignment.items():
-        loco = locomotives[loco_id]
+     #   loco = locomotives[loco_id]
        # for t_id in train_ids:
-            t = trains[t_id]
+         #   t = trains[t_id]
            # rows.append({
              #   "Поезд": t.id,
              #   "Откуда": t.route[0],
