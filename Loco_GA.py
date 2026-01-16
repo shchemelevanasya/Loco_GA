@@ -18,6 +18,71 @@ class Train:
     departure_time: float
     duration: float
 
+import random
+
+def generate_synthetic_data(
+        num_locomotives=10,
+        num_trains=20,
+        depots=("A", "B", "C")):
+    """
+    Генерация синтетических данных
+    для экспериментальных расчетов (глава 4)
+    """
+
+    locomotives = {}
+    for i in range(num_locomotives):
+        locomotives[i] = Locomotive(
+            id=i,
+            loco_type="2ЭС6",
+            power=random.uniform(4000, 7000),
+            remaining_resource=random.uniform(20, 50),
+            home_depot=random.choice(depots)
+        )
+
+    trains = {}
+    for j in range(num_trains):
+        dep = random.choice(depots)
+        arr = random.choice([d for d in depots if d != dep])
+        trains[j] = Train(
+            id=j,
+            weight=random.uniform(3000, 6000),
+            route=(dep, arr),
+            departure_time=random.uniform(0, 24),
+            duration=random.uniform(2, 6)
+        )
+
+    return locomotives, trains
+
+
+def preprocess_external_data(train_table, loco_table):
+    """
+    Предобработка данных,
+    поступающих из внешних информационных систем
+    """
+
+    trains = {}
+    for row in train_table:
+        trains[row["train_id"]] = Train(
+            id=row["train_id"],
+            weight=row["weight"],
+            route=(row["dep_station"], row["arr_station"]),
+            departure_time=row["dep_time"],
+            duration=row["duration"]
+        )
+
+    locomotives = {}
+    for row in loco_table:
+        locomotives[row["loco_id"]] = Locomotive(
+            id=row["loco_id"],
+            loco_type=row["type"],
+            power=row["power"],
+            remaining_resource=row["resource"],
+            home_depot=row["depot"]
+        )
+
+    return locomotives, trains
+
+
 class Chromosome:
     def __init__(self, assignment: Dict[int, List[int]]):
         """
@@ -190,3 +255,80 @@ def run_experiment(ga, baseline_solution, heuristic_solution):
         "ga_time_sec": ga_time
     }
 
+import pandas as pd
+
+# def build_assignment_table(solution, locomotives, trains):
+    rows = []
+    #for loco_id, train_ids in solution.assignment.items():
+        loco = locomotives[loco_id]
+       # for t_id in train_ids:
+            t = trains[t_id]
+           # rows.append({
+             #   "Поезд": t.id,
+             #   "Откуда": t.route[0],
+             #   "Куда": t.route[1],
+             #   "Отправление": t.departure_time,
+              #  "Прибытие": t.departure_time + t.duration,
+              #  "Локомотив": loco.id,
+              #  "Тип локомотива": loco.loco_type,
+               # "Остаточный ресурс": loco.remaining_resource
+          #  })
+  #  return pd.DataFrame(rows)} 
+
+
+def print_assignment_table(solution, locomotives, trains):
+    print("\nРезультаты назначения локомотивов:\n")
+
+    for loco_id, train_ids in solution.assignment.items():
+        loco = locomotives[loco_id]
+        print(f"Локомотив {loco_id} | Депо {loco.home_depot} "
+              f"| Остаточный ресурс: {loco.remaining_resource:.1f}")
+
+        for t_id in train_ids:
+            t = trains[t_id]
+            print(f"  Поезд {t.id}: {t.route[0]} → {t.route[1]}, "
+                  f"отпр {t.departure_time:.1f}, длит {t.duration:.1f}")
+        print()
+
+
+
+import matplotlib.pyplot as plt
+
+def plot_assignment(solution, trains):
+    fig, ax = plt.subplots()
+
+    y = 0
+    for loco_id, train_ids in solution.assignment.items():
+        for t_id in train_ids:
+            t = trains[t_id]
+            ax.barh(
+                y,
+                t.duration,
+                left=t.departure_time,
+                height=0.4
+            )
+        y += 1
+
+    ax.set_xlabel("Время, ч")
+    ax.set_ylabel("Локомотивы")
+    ax.set_title("Прогнозный график назначения локомотивов")
+    plt.show()
+
+if __name__ == "__main__":
+
+    # 1. Ввод данных
+    locomotives, trains = generate_synthetic_data()
+
+    # 2. Запуск алгоритма
+    ga = LocomotiveAssignmentGA(
+        locomotives,
+        trains,
+        population_size=50,
+        generations=100
+    )
+
+    solution = ga.run()
+
+    # 3. Вывод результатов
+    print_assignment_table(solution, locomotives, trains)
+    plot_assignment(solution, trains)
