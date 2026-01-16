@@ -176,4 +176,17 @@ class GeneticAlgorithm:
 
         return max(population, key=lambda c: c.fitness)
 
+import time
+
+def run_experiment(ga, baseline_solution, heuristic_solution):
+    start = time.time()
+    ga_solution = ga.run()
+    ga_time = time.time() - start
+
+    return {
+        "baseline_fitness": baseline_solution.fitness,
+        "heuristic_fitness": heuristic_solution.fitness,
+        "ga_fitness": ga_solution.fitness,
+        "ga_time_sec": ga_time
+    }
 
