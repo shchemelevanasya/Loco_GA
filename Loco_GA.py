@@ -18,6 +18,13 @@ class Train:
     departure_time: float
     duration: float
 
+
+class Train:
+    def __init__(self, id: int, weight: float:.1f, route: tuple):
+        self.id     = id
+        self.weight = weight
+        self.route  = route          # (dep, arr)
+
 import random
 
 def generate_synthetic_data(
@@ -50,7 +57,7 @@ def generate_synthetic_data(
             departure_time=random.uniform(0, 24),
             duration=random.uniform(2, 6)
         )
-
+            
     return locomotives, trains
 
 
