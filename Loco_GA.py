@@ -179,6 +179,9 @@ def generate_initial_population(pop_size: int,
 
 def tournament_selection(population: List[Chromosome],
                           k: int = 3) -> Chromosome:
+    k = min(k, len(population))
+    if k == 0:
+        raise ValueError("Популяция пуста – нельзя провести отбор")
     candidates = random.sample(population, k)
     return max(candidates, key=lambda c: c.fitness)
 
@@ -230,6 +233,8 @@ class GeneticAlgorithm:
             self.locomotives,
             self.trains
         )
+        if not population:                       # на всякий случай
+        raise RuntimeError("Начальная популяция пуста")
 
         for gen in range(self.generations):
             for chrom in population:
@@ -237,17 +242,29 @@ class GeneticAlgorithm:
 
             new_population = []
 
+        # безопасный размер турнира
+        k = min(self.tournament_selection, len(population))
+        if k == 0:
+            break
+        
             while len(new_population) < self.population_size:
-                p1 = tournament_selection(population)
-                p2 = tournament_selection(population)
+                p1 = tournament_selection(population, k)
+                p2 = tournament_selection(population, k)
 
                 child = crossover(p1, p2)
-                mutation(child)
+                mutation(child, self.mutation_rate)
 
                 if is_feasible(child, self.locomotives, self.trains):
                     new_population.append(child)
 
+             # если допустимых особей мало, дополняем родителями
+                if len(new_population) < self.population_size:
+                    parents = sorted(population, key=lambda c: c.fitness, reverse=True)
+                    new_population += parents[:self.population_size - len(new_population)]
+            
             population = new_population
+            if not population:
+            raise RuntimeError(f"Популяция исчезла на итерации {gen}")
 
         return max(population, key=lambda c: c.fitness)
 
