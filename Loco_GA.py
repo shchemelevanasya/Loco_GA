@@ -333,7 +333,83 @@ def print_assignment_table(solution, locomotives, trains):
                   f"отпр {t.departure_time:.1f}, длит {t.duration:.1f}")
         print()
 
+def print_locomotive_summary(locomotives: Dict[int, Locomotive],
+                             trains: Dict[int, Train],
+                             solution: Chromosome) -> None:
+    """1. Сводная таблица по каждому локомотиву"""
+    print("\n=== Сводная таблица локомотивов ===")
+    print(f"{'ID':>3} | {'Депо приписки':<12} | {'Текущее место':<12} "
+          f"| {'Остаток пробега':<15} | {'Остаток времени до ТО, ч':<22}")
+    print("-" * 85)
+    for loco_id, train_ids in solution.assignment.items():
+        loco = locomotives[loco_id]
+        # текущее место = последняя точка маршрута, либо депо приписки, если не работал
+        if train_ids:
+            last_train = trains[train_ids[-1]]
+            current_location = last_train.route[1]  # станция назначения последнего рейса
+            remaining_resource = loco.remaining_resource - sum(trains[t_id].duration for t_id in train_ids)
+        else:
+            current_location = loco.home_depot
+            remaining_resource = loco.remaining_resource
+        print(f"{loco.id:3} | {loco.home_depot:<12} | {current_location:<12} "
+              f"| {remaining_resource:15.1f} | {remaining_resource:22.1f}")
 
+def print_fitness_components(locomotives: Dict[int, Locomotive],
+                             trains: Dict[int, Train],
+                             solution: Chromosome) -> None:
+    """2. Детализация элементов fitness"""
+    idle_count   = calculate_idle_time(solution)          # локомотивы без работы
+    empty_run    = calculate_empty_run(solution)          # кол-во «пустых» переездов
+    total_locos  = len(locomotives)
+    used_locos   = sum(1 for lst in solution.assignment.values() if lst)
+    unused_locos = total_locos - used_locos
+
+    # оценочное «ожидание» поезда = кол-во локомотивов, которым НЕ хватает работы
+    # (упрощённо: кол-во поездов, назначенных на один локомотив > 1, но очереди нет)
+    waiting_trains = 0   # здесь можно усложнить, если нужно точное время
+    waiting_locos  = idle_count
+
+    print("\n=== Элементы функции пригодности ===")
+    print(f"Простой локомотивов (без работы): {idle_count}")
+    print(f"Порожние пробеги (оценка разрывов): {empty_run}")
+    print(f"Ожидание поездов локомотивами: {waiting_trains}")
+    print(f"Ожидание локомотивов поездами: {waiting_locos}")
+    print(f"Локомотивов в работе: {used_locos}")
+    print(f"Локомотивов неиспользовано: {unused_locos}")
+
+def print_detailed_plan(locomotives: Dict[int, Locomotive],
+                        trains: Dict[int, Train],
+                        solution: Chromosome) -> None:
+    """3. Детальный план назначения по локомотивам"""
+    print("\n=== План назначения локомотивов ===")
+    for loco_id, train_ids in solution.assignment.items():
+        loco = locomotives[loco_id]
+        print(f"\nЛокомотив {loco_id}  (депо приписки: {loco.home_depot})")
+        print(f"  Начало работы:")
+        print(f"    Депо начала работы: {loco.home_depot}")
+        print(f"    Остаточный ресурс (начало): {loco.remaining_resource:.1f} ч")
+
+        if not train_ids:
+            print("    Назначений нет")
+        else:
+            print("    Назначения:")
+            for t_id in train_ids:
+                t = trains[t_id]
+                print(f"      Поезд {t_id}:  {t.route[0]} → {t.route[1]}  "
+                      f"отпр {t.departure_time:.1f} ч  приб {t.departure_time + t.duration:.1f} ч")
+
+        # текущее место и ресурс после выполнения
+        if train_ids:
+            last_train = trains[train_ids[-1]]
+            current_depot = last_train.route[1]
+            remaining_res = loco.remaining_resource - sum(trains[t_id].duration for t_id in train_ids)
+        else:
+            current_depot = loco.home_depot
+            remaining_res = loco.remaining_resource
+
+        print(f"  Конец работы:")
+        print(f"    Текущее депо: {current_depot}")
+        print(f"    Остаточный ресурс (конец): {remaining_res:.1f} ч")
 
 import matplotlib.pyplot as plt
 
@@ -377,3 +453,8 @@ if __name__ == "__main__":
     # 3. Вывод результатов
     print_assignment_table(solution, locomotives, trains)
     plot_assignment(solution, trains)
+
+    # новые таблицы
+    print_locomotive_summary(locomotives, trains, solution)
+    print_fitness_components(locomotives, trains, solution)
+    print_detailed_plan(locomotives, trains, solution)
