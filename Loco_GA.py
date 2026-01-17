@@ -234,7 +234,7 @@ class GeneticAlgorithm:
             self.trains
         )
         if not population:                       # на всякий случай
-        raise RuntimeError("Начальная популяция пуста")
+            raise RuntimeError("Начальная популяция пуста")
 
         for gen in range(self.generations):
             for chrom in population:
