@@ -208,7 +208,7 @@ def mutation(chromosome: Chromosome,
 class GeneticAlgorithm:
     def __init__(self, locomotives, trains,
                  population_size=50,
-                 generations=100
+                 generations=100,
                  tournament_selection=3,         # ← новый параметр
                  mutation_rate=0.1):        # ← новый параметр
         self.locomotives = locomotives
@@ -334,7 +334,7 @@ if __name__ == "__main__":
         locomotives,
         trains,
         population_size=50,
-        generations=100
+        generations=100,
         tournament_selection=5,
         mutation_rate=0.1
     )
