@@ -186,7 +186,7 @@ def generate_initial_population(population_size: int,
         population.append(Chromosome(assignment))
 
         print(f"локомотивов={len(locomotives)}, поездов={len(trains)}")
-        print(f"первый допустимый?: {is_feasible(Chromosome({0: list(trains.keys())}), locomotives, trains)}")
+        #print(f"первый допустимый?: {is_feasible(Chromosome({0: list(trains.keys())}), locomotives, trains)}")
 
     return population
 
