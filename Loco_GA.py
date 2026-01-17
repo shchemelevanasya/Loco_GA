@@ -208,13 +208,16 @@ def mutation(chromosome: Chromosome,
 class GeneticAlgorithm:
     def __init__(self, locomotives, trains,
                  population_size=50,
-                 generations=100):
+                 generations=100
+                 tournament_selection=3,         # ← новый параметр
+                 mutation_rate=0.1):        # ← новый параметр
         self.locomotives = locomotives
         self.trains = trains
-        self.population_size = population_size
-        self.generations = generations
-        self.tournament_selection = min(tournament_selection, self.population_size)
-
+        self.population_size = int(population_size)
+        self.generations = int(generations)
+        self.tournament_selection = int(min(tournament_selection, self.population_size)) # ← корректировка
+        self.mutation_rate = float(mutation_rate)         # ← новый параметр
+    
     def run(self):
         population = generate_initial_population(
             self.population_size,
@@ -326,6 +329,8 @@ if __name__ == "__main__":
         trains,
         population_size=50,
         generations=100
+        tournament_selection=5,
+        mutation_rate=0.1
     )
 
     solution = ga.run()
