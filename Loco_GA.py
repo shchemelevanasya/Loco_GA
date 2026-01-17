@@ -175,6 +175,19 @@ def generate_initial_population(population_size: int,
         if is_feasible(chromosome, locomotives, trains):
             population.append(chromosome)
 
+        if not population:                # если ничего не набралось
+            loco_ids = list(locomotives.keys())
+            train_ids = list(trains.keys())
+            assignment = {loco_id: [] for loco_id in loco_ids}
+       
+        # просто раскидаем поезда циклически
+        for i, t_id in enumerate(train_ids):
+            assignment[loco_ids[i % len(loco_ids)]].append(t_id)
+        population.append(Chromosome(assignment))
+
+        print(f"локомотивов={len(locomotives)}, поездов={len(trains)}")
+        print(f"первый допустимый?: {is_feasible(Chromosome({0: list(trains.keys())}), locomotives, trains)}")
+
     return population
 
 def tournament_selection(population: List[Chromosome],
@@ -242,10 +255,10 @@ class GeneticAlgorithm:
 
             new_population = []
 
-        # безопасный размер турнира
-        k = min(self.tournament_selection, len(population))
-        if k == 0:
-            break
+           # безопасный размер турнира
+            k = min(self.tournament_selection, len(population))
+            if k == 0:
+                break
         
             while len(new_population) < self.population_size:
                 p1 = tournament_selection(population, k)
@@ -264,8 +277,11 @@ class GeneticAlgorithm:
             
             population = new_population
             if not population:
-            raise RuntimeError(f"Популяция исчезла на итерации {gen}")
-
+                raise RuntimeError(
+                    "Популяция пуста: ни одна хромосома не прошла ограничения. "
+                    "Проверь данные или смягчи ограничения в is_feasible.")
+                    # (f"Популяция исчезла на итерации {gen}")
+        
         return max(population, key=lambda c: c.fitness)
 
 import time
