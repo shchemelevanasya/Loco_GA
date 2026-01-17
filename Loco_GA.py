@@ -11,6 +11,7 @@ class Locomotive:
     remaining_resource: float    # ресурс до ТО
     home_depot: str
 
+@dataclass
 class Train:
     id: int
     weight: float
@@ -319,7 +320,7 @@ if __name__ == "__main__":
     locomotives, trains = generate_synthetic_data()
 
     # 2. Запуск алгоритма
-    ga = LocomotiveAssignmentGA(
+    ga = GeneticAlgorithm(
         locomotives,
         trains,
         population_size=50,
