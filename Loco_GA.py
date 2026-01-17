@@ -213,6 +213,7 @@ class GeneticAlgorithm:
         self.trains = trains
         self.population_size = population_size
         self.generations = generations
+        self.tournament_selection = min(tournament_selection, self.population_size)
 
     def run(self):
         population = generate_initial_population(
