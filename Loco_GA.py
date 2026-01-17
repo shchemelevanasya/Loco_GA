@@ -215,7 +215,7 @@ class GeneticAlgorithm:
         self.trains = trains
         self.population_size = int(population_size)
         self.generations = int(generations)
-        self.tournament_selection = int(tournament_selection, self.population_size)) # ← корректировка
+        self.tournament_selection = int(tournament_selection, self.population_size) # ← корректировка
         self.mutation_rate = float(mutation_rate)         # ← новый параметр
 
 # защита
