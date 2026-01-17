@@ -154,7 +154,7 @@ def fitness_function(chromosome: Chromosome,
     chromosome.fitness = fitness
     return fitness
 
-def generate_initial_population(pop_size: int,
+def generate_initial_population(population_size: int,
                                 locomotives: Dict[int, Locomotive],
                                 trains: Dict[int, Train]) -> List[Chromosome]:
     population = []
@@ -162,7 +162,7 @@ def generate_initial_population(pop_size: int,
     loco_ids = list(locomotives.keys())
     train_ids = list(trains.keys())
 
-    for _ in range(pop_size):
+    for _ in range(population_size):
         assignment = {loco_id: [] for loco_id in loco_ids}
 
         random.shuffle(train_ids)
