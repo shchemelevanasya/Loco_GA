@@ -193,6 +193,10 @@ def tournament_selection(population: List[Chromosome],
     if k == 0:
         raise ValueError("Популяция пуста – нельзя провести отбор")
     candidates = random.sample(population, k)
+                              
+    for chrom in population:
+        fitness_function(chrom, self.locomotives, self.trains)
+                              
     return max(candidates, key=lambda c: c.fitness)
 
 def crossover(parent1: Chromosome,
