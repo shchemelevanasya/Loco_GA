@@ -258,17 +258,17 @@ class GAReporter:
     def sensitivity_table(locomotives, trains,
                       base_weights=(0.4, 0.3, 0.3),
                       deltas=(-0.2, -0.1, 0, 0.1, 0.2)):
-    """2. Чувствительность к весам критериев"""
-    print("\n=== 2. Чувствительность целевой функции к весам ===")
-    print(f"{'Δ idle':>7} {'Δ empty':>8} {'Δ mass':>7} | {'fitness':>8}")
-    print("-" * 40)
-    for d in deltas:
-        w_idle = base_weights[0] + d
-        w_empty = base_weights[1] + d
-        w_mass = base_weights[2] - d   # сохраняем сумму = 1
-        # нормируем, чтобы сумма была 1
-        s = w_idle + w_empty + w_mass
-        w_idle /= s; w_empty /= s; w_mass /= s
+        """2. Чувствительность к весам критериев"""
+        print("\n=== 2. Чувствительность целевой функции к весам ===")
+        print(f"{'Δ idle':>7} {'Δ empty':>8} {'Δ mass':>7} | {'fitness':>8}")
+        print("-" * 40)
+        for d in deltas:
+            w_idle = base_weights[0] + d
+            w_empty = base_weights[1] + d
+            w_mass = base_weights[2] - d   # сохраняем сумму = 1
+            # нормируем, чтобы сумма была 1
+            s = w_idle + w_empty + w_mass
+            w_idle /= s; w_empty /= s; w_mass /= s
 
         ga = GeneticAlgorithm(locomotives, trains,
                               population_size=50,
