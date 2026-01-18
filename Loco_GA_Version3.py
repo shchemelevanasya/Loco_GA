@@ -1,4 +1,4 @@
-```python
+python
 # -*- coding: utf-8 -*-
 """
 Loco_GA — Genetic Algorithm for locomotive assignment
@@ -720,4 +720,3 @@ if __name__ == "__main__":
     else:
         logger.info("Streamlit not available or not selected — running CLI demo")
         run_cli_demo()
-```
