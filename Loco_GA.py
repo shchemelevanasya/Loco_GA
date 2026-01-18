@@ -275,6 +275,8 @@ class GeneticAlgorithm:
                 break
         
             while len(new_population) < self.population_size:
+                for chrom in population:
+                    fitness_function(chrom, self.locomotives, self.trains)
                 p1 = tournament_selection(population, k)
                 p2 = tournament_selection(population, k)
 
@@ -286,6 +288,8 @@ class GeneticAlgorithm:
 
              # если допустимых особей мало, дополняем родителями
                 if len(new_population) < self.population_size:
+                    for chrom in population:
+                        fitness_function(chrom, self.locomotives, self.trains)
                     parents = sorted(population, key=lambda c: c.fitness, reverse=True)
                     new_population += parents[:self.population_size - len(new_population)]
             
@@ -295,6 +299,8 @@ class GeneticAlgorithm:
                     "Популяция пуста: ни одна хромосома не прошла ограничения. "
                     "Проверь данные или смягчи ограничения в is_feasible.")
                     # (f"Популяция исчезла на итерации {gen}")
+        for chrom in population:
+            fitness_function(chrom, self.locomotives, self.trains)
         
         return max(population, key=lambda c: c.fitness)
 
