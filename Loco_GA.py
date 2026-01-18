@@ -231,6 +231,59 @@ class GeneticAlgorithm:
         self.tournament_selection = min(int(tournament_selection), self.population_size)  # ← корректировка
         self.mutation_rate = float(mutation_rate)         # ← новый параметр
 
+    def run(self):
+        population = generate_initial_population(
+            self.population_size,
+            self.locomotives,
+            self.trains
+        )
+        if not population:                       # на всякий случай
+            raise RuntimeError("Начальная популяция пуста")
+
+        for gen in range(self.generations):
+            for chrom in population:
+                fitness_function(chrom, self.locomotives, self.trains)
+
+                if not population:
+                    raise RuntimeError(
+                            "Популяция исчезла – ни одна хромосома не прошла ограничения. "
+                            "Смягчи ограничения is_feasible или увеличь population_size/mutation_rate."
+                    )
+
+                best = max(population, key=lambda c: c.fitness)
+                reporter.log_generation(gen, best.fitness)   # ← добавить
+
+            new_population = []
+
+           # безопасный размер турнира
+            k = min(self.tournament_selection, len(population))
+            if k == 0:
+                break
+        
+            while len(new_population) < self.population_size:
+                p1 = tournament_selection(population, k)
+                p2 = tournament_selection(population, k)
+
+                child = crossover(p1, p2)
+                mutation(child, self.mutation_rate)
+
+                if is_feasible(child, self.locomotives, self.trains):
+                    new_population.append(child)
+
+             # если допустимых особей мало, дополняем родителями
+                if len(new_population) < self.population_size:
+                    parents = sorted(population, key=lambda c: c.fitness, reverse=True)
+                    new_population += parents[:self.population_size - len(new_population)]
+            
+            population = new_population
+            if not population:
+                raise RuntimeError(
+                    "Популяция пуста: ни одна хромосома не прошла ограничения. "
+                    "Проверь данные или смягчи ограничения в is_feasible.")
+                    # (f"Популяция исчезла на итерации {gen}")
+        
+        return max(population, key=lambda c: c.fitness)
+
 class GAReporter:
     """Сбор статистики по ходу эволюции"""
     def __init__(self):
@@ -287,58 +340,7 @@ class GAReporter:
         if self.tournament_selection < 1:
             self.tournament_selection = 1
 
-    def run(self):
-        population = generate_initial_population(
-            self.population_size,
-            self.locomotives,
-            self.trains
-        )
-        if not population:                       # на всякий случай
-            raise RuntimeError("Начальная популяция пуста")
-
-        for gen in range(self.generations):
-            for chrom in population:
-                fitness_function(chrom, self.locomotives, self.trains)
-
-                if not population:
-                    raise RuntimeError(
-                            "Популяция исчезла – ни одна хромосома не прошла ограничения. "
-                            "Смягчи ограничения is_feasible или увеличь population_size/mutation_rate."
-                    )
-
-                best = max(population, key=lambda c: c.fitness)
-                reporter.log_generation(gen, best.fitness)   # ← добавить
-
-            new_population = []
-
-           # безопасный размер турнира
-            k = min(self.tournament_selection, len(population))
-            if k == 0:
-                break
-        
-            while len(new_population) < self.population_size:
-                p1 = tournament_selection(population, k)
-                p2 = tournament_selection(population, k)
-
-                child = crossover(p1, p2)
-                mutation(child, self.mutation_rate)
-
-                if is_feasible(child, self.locomotives, self.trains):
-                    new_population.append(child)
-
-             # если допустимых особей мало, дополняем родителями
-                if len(new_population) < self.population_size:
-                    parents = sorted(population, key=lambda c: c.fitness, reverse=True)
-                    new_population += parents[:self.population_size - len(new_population)]
-            
-            population = new_population
-            if not population:
-                raise RuntimeError(
-                    "Популяция пуста: ни одна хромосома не прошла ограничения. "
-                    "Проверь данные или смягчи ограничения в is_feasible.")
-                    # (f"Популяция исчезла на итерации {gen}")
-        
-        return max(population, key=lambda c: c.fitness)
+    
 
 import time
 
