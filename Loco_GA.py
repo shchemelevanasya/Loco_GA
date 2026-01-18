@@ -519,18 +519,18 @@ if __name__ == "__main__":
     print_fitness_components(locomotives, trains, solution)
     print_detailed_plan(locomotives, trains, solution)
 
-        import streamlit as st
-        try:
-            locomotives, trains = generate_synthetic_data()
-            ga = GeneticAlgorithm(locomotives, trains,
+    import streamlit as st
+    try:
+        locomotives, trains = generate_synthetic_data()
+        ga = GeneticAlgorithm(locomotives, trains,
                               population_size=60,   # чуть больше
                               generations=120,
                               tournament_selection=5,
                               mutation_rate=0.15)
-            solution = ga.run()
-        except Exception as e:
-            st.error(f"Ошибка в ga.run(): {e}")
-            st.stop()
-        else:
-            st.success("Алгоритм завершён")
-            print_assignment_table(solution, locomotives, trains)
+        solution = ga.run()
+    except Exception as e:
+        st.error(f"Ошибка в ga.run(): {e}")
+        st.stop()
+    else:
+        st.success("Алгоритм завершён")
+        print_assignment_table(solution, locomotives, trains)
