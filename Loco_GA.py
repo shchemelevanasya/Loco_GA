@@ -490,35 +490,6 @@ def plot_assignment(solution, trains):
     plt.show()
 
 if __name__ == "__main__":
-
-    # 1. Ввод данных
-    locomotives, trains = generate_synthetic_data()
-
-    # 2. Запуск алгоритма
-    ga = GeneticAlgorithm(
-        locomotives,
-        trains,
-        population_size=50,
-        generations=100,
-        tournament_selection=5,
-        mutation_rate=0.1
-    )
-
-    solution = ga.run()
-
-    reporter.print_summary(solution)      # таблица 1
-    sensitivity_table(locomotives, trains)  # таблица 2
-    reporter.print_generation_curve()     # таблица 3
-
-    # 3. Вывод результатов
-    print_assignment_table(solution, locomotives, trains)
-    plot_assignment(solution, trains)
-
-    # новые таблицы
-    print_locomotive_summary(locomotives, trains, solution)
-    print_fitness_components(locomotives, trains, solution)
-    print_detailed_plan(locomotives, trains, solution)
-
     import streamlit as st
     try:
         locomotives, trains = generate_synthetic_data()
@@ -534,3 +505,33 @@ if __name__ == "__main__":
     else:
         st.success("Алгоритм завершён")
         print_assignment_table(solution, locomotives, trains)
+    
+    # 1. Ввод данных
+    # locomotives, trains = generate_synthetic_data()
+
+    # 2. Запуск алгоритма
+   # ga = GeneticAlgorithm(
+        locomotives,
+        trains,
+    #    population_size=50,
+    #    generations=100,
+    #    tournament_selection=5,
+    #    mutation_rate=0.1
+    )
+
+    # solution = ga.run()
+
+    reporter.print_summary(solution)      # таблица 1
+    sensitivity_table(locomotives, trains)  # таблица 2
+    reporter.print_generation_curve()     # таблица 3
+
+    # 3. Вывод результатов
+    print_assignment_table(solution, locomotives, trains)
+    plot_assignment(solution, trains)
+
+    # новые таблицы
+    print_locomotive_summary(locomotives, trains, solution)
+    print_fitness_components(locomotives, trains, solution)
+    print_detailed_plan(locomotives, trains, solution)
+
+    
