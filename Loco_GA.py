@@ -517,7 +517,7 @@ if __name__ == "__main__":
     #    generations=100,
     #    tournament_selection=5,
     #    mutation_rate=0.1
-    )
+    #)
 
     # solution = ga.run()
 
