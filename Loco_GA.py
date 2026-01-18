@@ -245,7 +245,7 @@ class GeneticAlgorithm:
         self.tournament_selection = min(int(tournament_selection), self.population_size)  # ← корректировка
         self.mutation_rate = float(mutation_rate)         # ← новый параметр
 
-    def run(self):
+    def run(self, reporter=None):
         population = generate_initial_population(
             self.population_size,
             self.locomotives,
@@ -267,7 +267,8 @@ class GeneticAlgorithm:
                     fitness_function(chrom, self.locomotives, self.trains)
 
                 best = max(population, key=lambda c: c.fitness)
-                reporter.log_generation(gen, best.fitness)   # ← добавить
+                if reporter:            # ← защита на случай None
+                    reporter.log_generation(gen, best.fitness)   # ← добавить
 
             new_population = []
 
@@ -522,7 +523,10 @@ if __name__ == "__main__":
                               generations=120,
                               tournament_selection=5,
                               mutation_rate=0.15)
-        solution = ga.run()
+        reporter = GAReporter()
+        reporter.start()
+        solution = ga.run(reporter=reporter)
+        #solution = ga.run()
     except Exception as e:
         st.error(f"Ошибка в ga.run(): {e}")
         st.stop()
