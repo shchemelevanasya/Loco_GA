@@ -533,17 +533,17 @@ if __name__ == "__main__":
     print_detailed_plan(locomotives, trains, solution)
 
     if __name__ == "__main__":
-    try:
-        locomotives, trains = generate_synthetic_data()
-        ga = GeneticAlgorithm(locomotives, trains,
+        try:
+            locomotives, trains = generate_synthetic_data()
+            ga = GeneticAlgorithm(locomotives, trains,
                               population_size=50,
                               generations=100,
                               tournament_selection=5,
                               mutation_rate=0.1)
-        solution = ga.run()
-        print_assignment_table(solution, locomotives, trains)
-    except Exception as e:
-        import traceback
-        st = __import__('streamlit', None, None, [''], 0)
-        st.error("Ошибка в ga.run()")
-        st.code(traceback.format_exc())
+            solution = ga.run()
+            print_assignment_table(solution, locomotives, trains)
+        except Exception as e:
+            import traceback
+            st = __import__('streamlit', None, None, [''], 0)
+            st.error("Ошибка в ga.run()")
+            st.code(traceback.format_exc())
