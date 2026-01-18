@@ -257,18 +257,19 @@ class GeneticAlgorithm:
         for gen in range(self.generations):
             for chrom in population:
                 fitness_function(chrom, self.locomotives, self.trains)
+                
+            best = max(population, key=lambda c: c.fitness)
+            
+            if reporter:            # ← защита на случай None
+                    reporter.log_generation(gen, best.fitness)   # ← добавить
 
-                if not population:
-                    raise RuntimeError(
+                #if not population:
+                 #   raise RuntimeError(
                             "Популяция исчезла – ни одна хромосома не прошла ограничения. "
                             "Смягчи ограничения is_feasible или увеличь population_size/mutation_rate."
                     )
-                for chrom in population:
-                    fitness_function(chrom, self.locomotives, self.trains)
-
-                best = max(population, key=lambda c: c.fitness)
-                if reporter:            # ← защита на случай None
-                    reporter.log_generation(gen, best.fitness)   # ← добавить
+                #for chrom in population:
+                   # fitness_function(chrom, self.locomotives, self.trains)
 
             new_population = []
 
