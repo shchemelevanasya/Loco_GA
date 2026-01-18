@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Tuple
 import random
 import copy
+import time, datetime, itertools
 
 @dataclass
 class Locomotive:
@@ -234,6 +235,56 @@ class GeneticAlgorithm:
         self.tournament_selection = min(int(tournament_selection), self.population_size)  # ← корректировка
         self.mutation_rate = float(mutation_rate)         # ← новый параметр
 
+class GAReporter:
+    """Сбор статистики по ходу эволюции"""
+    def __init__(self):
+        self.generation_log = []   # (номер_поколения, лучшая_пригодность)
+        self.start_time = None
+
+    def start(self):
+        self.start_time = time.time()
+
+    def log_generation(self, gen: int, best_fitness: float):
+        self.generation_log.append((gen, best_fitness))
+
+    def elapsed(self) -> float:
+        return time.time() - (self.start_time or time.time())
+
+    def print_summary(self, solution: Chromosome):
+        print("\n=== 1. Время расчёта и итоговая пригодность ===")
+        print(f"Время расчёта, с: {self.elapsed():.2f}")
+        print(f"Итоговая целевая функция: {solution.fitness:.2f}")
+    
+    def sensitivity_table(locomotives, trains,
+                      base_weights=(0.4, 0.3, 0.3),
+                      deltas=(-0.2, -0.1, 0, 0.1, 0.2)):
+    """2. Чувствительность к весам критериев"""
+    print("\n=== 2. Чувствительность целевой функции к весам ===")
+    print(f"{'Δ idle':>7} {'Δ empty':>8} {'Δ mass':>7} | {'fitness':>8}")
+    print("-" * 40)
+    for d in deltas:
+        w_idle = base_weights[0] + d
+        w_empty = base_weights[1] + d
+        w_mass = base_weights[2] - d   # сохраняем сумму = 1
+        # нормируем, чтобы сумма была 1
+        s = w_idle + w_empty + w_mass
+        w_idle /= s; w_empty /= s; w_mass /= s
+
+        ga = GeneticAlgorithm(locomotives, trains,
+                              population_size=50,
+                              generations=100,
+                              tournament_selection=5,
+                              mutation_rate=0.1)
+        sol = ga.run()
+        print(f"{d:+6.1f}  | {d:+7.1f}  | {d:+6.1f}  | {sol.fitness:8.2f}")
+
+    def print_generation_curve(self):
+        print("\n=== 3. Поколение → лучшая пригодность ===")
+        print(f"{'Поколение':>9} | {'fitness':>10}")
+        print("-" * 23)
+        for gen, fit in self.generation_log[::max(1, len(self.generation_log)//20)]:  # не более 20 строк
+            print(f"{gen:9} | {fit:10.2f}")
+        
 # защита
         if self.tournament_selection > self.population_size:
             self.tournament_selection = self.population_size
@@ -252,6 +303,9 @@ class GeneticAlgorithm:
         for gen in range(self.generations):
             for chrom in population:
                 fitness_function(chrom, self.locomotives, self.trains)
+
+                best = max(population, key=lambda c: c.fitness)
+                reporter.log_generation(gen, best.fitness)   # ← добавить
 
             new_population = []
 
@@ -449,6 +503,10 @@ if __name__ == "__main__":
     )
 
     solution = ga.run()
+
+    reporter.print_summary(solution)      # таблица 1
+    sensitivity_table(locomotives, trains)  # таблица 2
+    reporter.print_generation_curve()     # таблица 3
 
     # 3. Вывод результатов
     print_assignment_table(solution, locomotives, trains)
