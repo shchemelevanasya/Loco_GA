@@ -523,7 +523,7 @@ if __name__ == "__main__":
     try:
         locomotives, trains = generate_synthetic_data()
         ga = GeneticAlgorithm(locomotives, trains,
-                              population_size=60,   # чуть больше
+                              population_size=60,
                               generations=120,
                               tournament_selection=5,
                               mutation_rate=0.15)
