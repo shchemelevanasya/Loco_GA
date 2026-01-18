@@ -176,19 +176,6 @@ def generate_initial_population(population_size: int,
         if is_feasible(chromosome, locomotives, trains):
             population.append(chromosome)
 
-        if not population:                # если ничего не набралось
-            loco_ids = list(locomotives.keys())
-            train_ids = list(trains.keys())
-            assignment = {loco_id: [] for loco_id in loco_ids}
-       
-        # просто раскидаем поезда циклически
-        for i, t_id in enumerate(train_ids):
-            assignment[loco_ids[i % len(loco_ids)]].append(t_id)
-        population.append(Chromosome(assignment))
-
-        print(f"локомотивов={len(locomotives)}, поездов={len(trains)}")
-        #print(f"первый допустимый?: {is_feasible(Chromosome({0: list(trains.keys())}), locomotives, trains)}")
-
         if not population:                      # если допустимых нет
             loco_ids = list(locomotives.keys())
             train_ids = list(trains.keys())
@@ -533,17 +520,18 @@ if __name__ == "__main__":
     print_detailed_plan(locomotives, trains, solution)
 
     if __name__ == "__main__":
+        import streamlit as st
         try:
             locomotives, trains = generate_synthetic_data()
             ga = GeneticAlgorithm(locomotives, trains,
-                              population_size=50,
-                              generations=100,
+                              population_size=60,   # чуть больше
+                              generations=120,
                               tournament_selection=5,
-                              mutation_rate=0.1)
+                              mutation_rate=0.15)
             solution = ga.run()
-            print_assignment_table(solution, locomotives, trains)
         except Exception as e:
-            import traceback
-            st = __import__('streamlit', None, None, [''], 0)
-            st.error("Ошибка в ga.run()")
-            st.code(traceback.format_exc())
+            st.error(f"Ошибка в ga.run(): {e}")
+            st.stop()
+        else:
+            st.success("Алгоритм завершён")
+            print_assignment_table(solution, locomotives, trains)
