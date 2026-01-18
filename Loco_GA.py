@@ -263,6 +263,8 @@ class GeneticAlgorithm:
                             "Популяция исчезла – ни одна хромосома не прошла ограничения. "
                             "Смягчи ограничения is_feasible или увеличь population_size/mutation_rate."
                     )
+                for chrom in population:
+                    fitness_function(chrom, self.locomotives, self.trains)
 
                 best = max(population, key=lambda c: c.fitness)
                 reporter.log_generation(gen, best.fitness)   # ← добавить
