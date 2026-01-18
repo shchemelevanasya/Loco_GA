@@ -1,18 +1,3 @@
-python
-# -*- coding: utf-8 -*-
-"""
-Loco_GA — Genetic Algorithm for locomotive assignment
-Enhancements in this version:
- - distance -> time conversion for empty runs using 3D coordinates (x, y, elevation)
- - terrain/slope factor in conversion (affects repositioning time)
- - optional multiprocessing (ProcessPoolExecutor) for:
-     * parallel evaluation of fitness across population
-     * parallel child generation when population large
- - Streamlit UI preserved (runs in-process); multiprocessing only used for GA internals
- - Logging improved
-Note: multiprocessing is used only when beneficial and respects Windows safety:
-the module avoids spawning processes on import (uses `if __name__ == "__main__"` guard).
-"""
 from dataclasses import dataclass
 from typing import List, Dict, Tuple, Optional
 import random
