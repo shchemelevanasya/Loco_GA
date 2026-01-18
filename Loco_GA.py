@@ -93,6 +93,16 @@ class Chromosome:
         """
         self.assignment = assignment
         self.fitness = None
+        
+    @property
+    def fitness(self):
+        if self._fitness is None:
+            raise RuntimeError("Fitness ещё не вычислен – вызовите fitness_function()")
+        return self._fitness
+
+    @fitness.setter
+    def fitness(self, val):
+        self._fitness = val
 
 def check_traction(loco: Locomotive, train: Train) -> bool:
     return loco.power >= train.weight
