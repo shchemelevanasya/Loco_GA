@@ -519,7 +519,6 @@ if __name__ == "__main__":
     print_fitness_components(locomotives, trains, solution)
     print_detailed_plan(locomotives, trains, solution)
 
-    if __name__ == "__main__":
         import streamlit as st
         try:
             locomotives, trains = generate_synthetic_data()
