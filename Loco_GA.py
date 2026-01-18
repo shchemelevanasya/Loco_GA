@@ -265,9 +265,9 @@ class GeneticAlgorithm:
 
                 #if not population:
                  #   raise RuntimeError(
-                            "Популяция исчезла – ни одна хромосома не прошла ограничения. "
-                            "Смягчи ограничения is_feasible или увеличь population_size/mutation_rate."
-                    )
+                          #  "Популяция исчезла – ни одна хромосома не прошла ограничения. "
+                           # "Смягчи ограничения is_feasible или увеличь population_size/mutation_rate."
+                 #   )
                 #for chrom in population:
                    # fitness_function(chrom, self.locomotives, self.trains)
 
