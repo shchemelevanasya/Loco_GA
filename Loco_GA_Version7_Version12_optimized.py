@@ -33,7 +33,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
-# Try seaborn for nicer style if available; otherwise use a safe matplotlib style from a preferred list.
+# Try seaborn for nicer style if available
 try:
     import seaborn as sns
     sns.set_style("whitegrid")
@@ -579,7 +579,7 @@ def generate_initial_population(population_size: int, locomotives: Dict[int, Loc
 
 
 # ---------------------
-# GeneticAlgorithm with adaptive crossover selection and per-operator probabilities
+# GeneticAlgorithm with adaptive crossover selection
 # ---------------------
 class GeneticAlgorithm:
     def __init__(self, locomotives: Dict[int, Locomotive], trains: Dict[int, Train],
@@ -599,8 +599,8 @@ class GeneticAlgorithm:
                  maximize: bool = False):
         self.locomotives = locomotives
         self.trains = trains
-        self.train_lookup = build_train_lookup(trains)  # OPTIMIZED: Build once
-        self.train_ids = ordered_train_ids(trains)  # OPTIMIZED: Cache train IDs
+        self.train_lookup = build_train_lookup(trains)
+        self.train_ids = ordered_train_ids(trains)
         self.population_size = max(1, int(population_size))
         self.generations = max(1, int(generations))
         self.tournament_k = max(1, min(int(tournament_k), self.population_size))
@@ -618,7 +618,6 @@ class GeneticAlgorithm:
         self.max_mutation_rate = float(max_mutation_rate)
 
         self.crossover_operator_probs_input = crossover_operator_probs or {}
-
         self.best_history: List[float] = []
         self.no_improve_generations = 0
 
@@ -632,7 +631,6 @@ class GeneticAlgorithm:
 
         self.crossover_weights = [1.0 / len(self.crossover_methods) for _ in self.crossover_methods]
         self.crossover_operator_probs = {m: float(self.crossover_operator_probs_input.get(m, 0.5)) for m in self.crossover_methods}
-
         self.maximize = bool(maximize)
 
     def _tournament_selection(self, population: List[Chromosome], k: int = 3) -> Chromosome:
@@ -653,7 +651,6 @@ class GeneticAlgorithm:
         return sorted(population, key=lambda c: c.fitness, reverse=self.maximize)
 
     def _evaluate_population_dynamic(self, population: List[Chromosome]) -> Dict[str, Any]:
-        """OPTIMIZED: Reduced duplicated computation"""
         comps = [compute_components(ch, self.locomotives, self.train_lookup, self.station_coords) for ch in population]
         if comps:
             means = [statistics.mean([c[i] for c in comps]) for i in range(5)]
@@ -850,7 +847,6 @@ class GeneticAlgorithm:
             stats["crossover_methods"] = self.crossover_methods[:]
             stats["crossover_weights"] = tuple(self.crossover_weights)
             stats["crossover_operator_probs"] = {m: self.crossover_operator_probs.get(m, 0.5) for m in self.crossover_methods}
-
             stats["mutation_rate"] = round(self.mutation_rate, 4)
 
             if self.progress_callback:
@@ -910,7 +906,7 @@ class GeneticAlgorithm:
 
 
 # ---------------------
-# Reporter and improved plotting (research-ready)
+# Reporter and plotting
 # ---------------------
 class GAReporter:
     def __init__(self):
@@ -959,7 +955,6 @@ class GAReporter:
             print(f"Final objective (raw): {raw:.6f}")
 
 
-# Improved plotting functions (research-ready)
 def plot_generation_curve(reporter: GAReporter, figsize: Tuple[int, int] = (10, 4), dpi: int = 150) -> plt.Figure:
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
     if not reporter.generation_log:
@@ -1138,7 +1133,7 @@ def build_locomotive_summary_dataframe(locomotives: Dict[int, Locomotive],
 
 
 # ---------------------
-# Streamlit helpers for download
+# Streamlit helpers
 # ---------------------
 def st_download_button_from_fig(fig: plt.Figure, label: str, filename: str = "figure.png", fmt: str = "png", dpi: int = 300):
     data = fig_to_bytes(fig, fmt=fmt, dpi=dpi)
@@ -1224,4 +1219,33 @@ def run_streamlit_app():
     num_locomotives = st.sidebar.slider("Number of locomotives (if not uploaded)", 1, 200, 10)
     num_trains = st.sidebar.slider("Number of trains (if not uploaded)", 1, 500, 20)
     depot_names_str = st.sidebar.text_input("Stations/depots (comma separated)", "A,B,C")
-    depot_names = tuple(s.strip() for s in depot_names_str.split(",") if s.
+    depot_names = tuple(s.strip() for s in depot_names_str.split(",") if s.strip())
+    seed = st.sidebar.number_input("Random seed (0 = random)", min_value=0, value=0, step=1)
+    if seed == 0:
+        seed = None
+
+    population_size = st.sidebar.number_input("Population size", min_value=2, max_value=2000, value=60)
+    generations = st.sidebar.number_input("Generations", min_value=1, max_value=2000, value=60)
+    tournament_k = st.sidebar.number_input("Tournament k", min_value=1, max_value=population_size, value=5)
+    mutation_rate = st.sidebar.slider("Initial mutation rate", 0.0, 1.0, 0.15, 0.01)
+
+    st.sidebar.markdown("### Crossover operators")
+    use_all_cross = st.sidebar.checkbox("Use all crossover operators", value=True)
+    all_ops = ["one_point", "two_point", "uniform", "priority"]
+    if use_all_cross:
+        crossover_methods_selected = all_ops[:]
+    else:
+        crossover_methods_selected = st.sidebar.multiselect("Select crossover operators", options=all_ops, default=["uniform", "one_point"])
+        if not crossover_methods_selected:
+            st.sidebar.warning("No crossover selected — defaulting to 'uniform'")
+            crossover_methods_selected = ["uniform"]
+
+    st.sidebar.markdown("Set per-operator base probabilities")
+    crossover_operator_probs = {}
+    for op in all_ops:
+        if op in crossover_methods_selected:
+            default = 0.5
+            val = st.sidebar.slider(f"p({op})", 0.0, 1.0, float(default), 0.01)
+            crossover_operator_probs[op] = float(val)
+
+    
